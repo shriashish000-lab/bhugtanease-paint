@@ -1,47 +1,37 @@
 name: Build BhugtanEase Paint Installer
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Set up Python 3.8 (32-bit)
         uses: actions/setup-python@v5
         with:
           python-version: '3.8'
           architecture: 'x86'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
       - name: Build EXE with PyInstaller
         run: |
-          pyinstaller --onefile --windowed --icon=app_icon.ico --name BhugtanEase_Paint BhugtanEase_Paint.pyw
-
+          pyinstaller --onefile --windowed --icon=app_icon.ico --name BhugtanEase_Paint --collect-all openpyxl --collect-all et_xmlfile BhugtanEase_Paint.pyw
       - name: Install Inno Setup
         run: |
           choco install innosetup -y
-
       - name: Build Installer
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
-
       - name: Upload EXE artifact
         uses: actions/upload-artifact@v4
         with:
           name: BhugtanEase_Paint_EXE
           path: dist\BhugtanEase_Paint.exe
-
       - name: Upload Installer artifact
         uses: actions/upload-artifact@v4
         with:
